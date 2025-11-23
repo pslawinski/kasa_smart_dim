@@ -3,18 +3,18 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 [![CI](https://github.com/pslawinski/kasa_smart_dim/workflows/CI/badge.svg)](https://github.com/pslawinski/kasa_smart_dim/actions)
 
-**Pre-set brightness levels for Kasa dimmers while they're turned off** - perfect for circadian lighting programs and automation that ensures smooth lighting transitions.
+**Pre-set brightness levels for Kasa dimmers while they're turned off** - eliminates brightness jumps when lights turn on, perfect for circadian lighting and automation.
 
 ## What It Does
 
-This integration creates a special "always-on" light entity for each Kasa dimmer you configure. The key innovation is that you can adjust the brightness of these entities **even when the physical light is off**. When you later turn on the physical light, it will instantly use the pre-set brightness level, providing smooth lighting transitions.
+This integration creates a special "always-on" light entity for each Kasa dimmer you configure. The key innovation is that you can adjust the brightness of these entities **even when the physical light is off**. When you later turn on the physical light, it instantly uses the pre-set brightness level, eliminating the brightness jump that normally occurs when adjusting dimmer brightness after turning on the light.
 
 ## Perfect For
 
 - **Circadian Lighting**: Pre-load brightness levels for sunrise/sunset programs
 - **Automation**: Set dimmer levels before turning lights on in scenes
-- **Smooth Transitions**: Ensure consistent lighting levels in complex automations
-- **Smart Home Control**: Seamless brightness transitions in complex automations
+- **Brightness Control**: Avoid brightness jumps when lights turn on
+- **Smart Home Control**: Precise lighting control in complex automations
 
 ## How It Works
 
@@ -57,7 +57,7 @@ After configuration, you'll see two light entities for each dimmer:
 
 - **Set brightness while off**: Adjust the Smart Dim entity brightness even when the physical light is off
 - **Turn on with preset**: When you turn on the physical light, it instantly uses the pre-set brightness
-- **Smooth transitions**: Provides consistent lighting levels without adjustment delays
+- **No brightness jumps**: Eliminates the brightness jump that occurs when adjusting dimmer brightness after turning on the light
 - **Automation ready**: Perfect for circadian lighting schedules and complex automation sequences
 
 ### Example Automation
@@ -70,7 +70,7 @@ After configuration, you'll see two light entities for each dimmer:
   data:
     brightness_pct: 30
 
-# Later turn on the physical light - smooth transition!
+# Later turn on the physical light - no brightness jump!
 - service: light.turn_on
   target:
     entity_id: light.bedroom
