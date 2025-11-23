@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "documentation": "https://www.home-assistant.io/integrations/tplink/",
   "dependencies": ["tplink"],
-  "codeowners": ["@your_github_username"],
+  "codeowners": ["@pslawinski"],
   "iot_class": "local_push",
   "config_flow": true
 }
