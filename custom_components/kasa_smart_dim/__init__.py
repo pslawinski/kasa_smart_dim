@@ -1,8 +1,6 @@
-import asyncio
 import logging
 from binascii import hexlify
 from datetime import timedelta
-from typing import Dict, Optional, Tuple
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -12,11 +10,6 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 
 from .const import DOMAIN, PLATFORMS
 from .kasa_vendored.discover import Discover
-from .kasa_vendored.exceptions import (
-    ConnectionException,
-    SmartDeviceException,
-    TimeoutException,
-)
 from .kasa_vendored.smartdimmer import SmartDimmer as VendoredSmartDimmer
 
 _LOGGER = logging.getLogger(__name__)
@@ -30,7 +23,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     entity_entry = entity_registry.async_get(entity_id)
 
     if not entity_entry:
-        _LOGGER.error(f"Could not find entity entry for {entity_id}. Aborting setup.")
+        _LOGGER.error("Could not find entity entry for %s. Aborting setup.", entity_id)
         return False
 
     device_registry = dr.async_get(hass)
@@ -46,7 +39,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     if not mac_address_tuple:
-        _LOGGER.error(f"Could not find MAC address for entity {entity_id}.")
+        _LOGGER.error("Could not find MAC address for entity %s.", entity_id)
         return False
 
     mac_address = mac_address_tuple[1]
@@ -55,7 +48,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     try:
         await coordinator.async_config_entry_first_refresh()
     except UpdateFailed:
-        _LOGGER.error("Initial refresh failed for coordinator. Aborting setup.")
+        _LOGGER.exception("Initial refresh failed for coordinator. Aborting setup.")
         return False
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
@@ -92,7 +85,7 @@ class KasaSmartDimmerCoordinator(DataUpdateCoordinator):
         try:
             discovered_devices = await Discover.discover(timeout=5)
             _LOGGER.debug(
-                f"Discovered {len(discovered_devices)} devices: {discovered_devices}"
+                "Discovered %s devices: %s", len(discovered_devices), discovered_devices
             )
 
             for ip, device in discovered_devices.items():
@@ -114,7 +107,7 @@ class KasaSmartDimmerCoordinator(DataUpdateCoordinator):
                         ip,
                     )
 
-                    # Patch features to remove emeter support to prevent errors during update().
+                    # Patch features to remove emeter support to prevent errors.
                     if hasattr(device, "_features") and "ENE" in device._features:
                         device._features.remove("ENE")
                         _LOGGER.debug(
@@ -135,17 +128,19 @@ class KasaSmartDimmerCoordinator(DataUpdateCoordinator):
                             if name not in unsupported_modules
                         }
                         _LOGGER.debug(
-                            f"Patched device {ip}, remaining modules: {list(device._modules.keys())}"
+                            "Patched device %s, remaining modules: %s",
+                            ip,
+                            list(device._modules.keys()),
                         )
 
                     return device
 
-        except Exception as e:
-            _LOGGER.error(
-                f"Failed to discover and patch device with MAC {self._mac_address}: {e}"
+        except Exception:
+            _LOGGER.exception(
+                "Failed to discover and patch device with MAC %s", self._mac_address
             )
 
-        _LOGGER.warning(f"Could not find device with MAC {self._mac_address}")
+        _LOGGER.warning("Could not find device with MAC %s", self._mac_address)
         return None
 
     async def _async_update_data(self):
@@ -154,16 +149,17 @@ class KasaSmartDimmerCoordinator(DataUpdateCoordinator):
             self.device = await self._async_get_device()
 
         if not self.device:
-            raise UpdateFailed(f"Could not connect to device {self._mac_address}")
+            msg = f"Could not connect to device {self._mac_address}"
+            raise UpdateFailed(msg)
 
         try:
             await self.device.update()
-            return {"is_on": self.device.is_on, "brightness": self.device.brightness}
         except Exception as e:
             _LOGGER.warning(
                 "Error communicating with device %s: %s", self._mac_address, e
             )
             self.device = None
-            raise UpdateFailed(
-                f"Error communicating with device {self._mac_address}: {e}"
-            )
+            msg = f"Error communicating with device {self._mac_address}: {e}"
+            raise UpdateFailed(msg) from e
+        else:
+            return {"is_on": self.device.is_on, "brightness": self.device.brightness}

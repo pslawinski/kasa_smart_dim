@@ -57,7 +57,7 @@ class KasaSmartDimConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             entity_entry.entity_id
                         )
 
-        _LOGGER.debug(f"Found Kasa dimmers: {kasa_dimmer_options}")
+        _LOGGER.debug("Found Kasa dimmers: %s", kasa_dimmer_options)
 
         if not kasa_dimmer_options:
             return self.async_abort(reason="no_kasa_dimmers")
