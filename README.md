@@ -3,7 +3,7 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 [![CI](https://github.com/pslawinski/kasa_smart_dim/workflows/CI/badge.svg)](https://github.com/pslawinski/kasa_smart_dim/actions)
 
-**Pre-set brightness levels for Kasa dimmers while they're turned off** - eliminates brightness jumps when lights turn on, perfect for circadian lighting and automation.
+**Pre-set brightness levels for Kasa dimmers while they're turned off** - eliminates brightness jumps when lights turn on. Perfect for circadian lighting and automation.
 
 ## What It Does
 
@@ -53,12 +53,14 @@ After configuration, you'll see two light entities for each dimmer:
 1. **Original Entity** (e.g., `light.kasa_dimmer_living_room`) - The standard Kasa dimmer
 2. **Smart Dim Entity** (e.g., `light.kasa_dimmer_living_room_off_dim`) - Always appears "on" for pre-setting brightness
 
+> **Note:** You will likely want to hide the Smart Dim entities from your dashboards, as they are utility entities used only for automation and brightness pre-setting. To hide them, go to **Settings > Devices & Services > Entities**, find the Smart Dim entities, and toggle **"Hide from dashboards"**.
+
 ### In Practice
 
-- **Set brightness while off**: Adjust the Smart Dim entity brightness even when the physical light is off
-- **Turn on with preset**: When you turn on the physical light, it instantly uses the pre-set brightness
-- **No brightness jumps**: Eliminates the brightness jump that occurs when adjusting dimmer brightness after turning on the light
-- **Automation ready**: Perfect for circadian lighting schedules and complex automation sequences
+- **Set brightness while off**: Adjust the Smart Dim entity brightness even when the physical light is off.
+- **Turn on with preset**: When you turn on the physical light, it instantly uses the pre-set brightness.
+- **No brightness jumps**: Eliminates the brightness jump that occurs when adjusting dimmer brightness after turning on the light.
+- **Automation ready**: Perfect for circadian lighting schedules and complex automation sequences.
 
 ### Example Automation
 
