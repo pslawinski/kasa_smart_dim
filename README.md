@@ -1,6 +1,7 @@
 # Kasa Smart Dim
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
+[![CI](https://github.com/pslawinski/kasa_smart_dim/workflows/CI/badge.svg)](https://github.com/pslawinski/kasa_smart_dim/actions)
 
 Enhanced dimming capabilities for Kasa smart dimmers in Home Assistant.
 
