@@ -50,4 +50,4 @@ jobs:
           pip install -e .
 
       - name: Run tests
-        run: pytest
+        run: pytest --ignore=custom_components/kasa_smart_dim/kasa_vendored/
