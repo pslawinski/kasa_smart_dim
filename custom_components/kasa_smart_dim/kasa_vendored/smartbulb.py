@@ -69,11 +69,11 @@ class TurnOnBehavior(BaseModel):
     """
 
     #: Index of preset to use, or ``None`` for the last known state.
-    preset: Optional[int] = Field(alias="index", default=None)
+    preset: Optional[int] = Field(type_=Optional[int], alias="index", default=None)
     #: Wanted behavior
     mode: BehaviorMode
 
-    @root_validator
+    @root_validator(allow_reuse=True)
     def _mode_based_on_preset(cls, values):
         """Set the mode based on the preset value."""
         if values["preset"] is not None:
