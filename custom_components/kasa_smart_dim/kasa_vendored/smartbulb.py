@@ -73,16 +73,6 @@ class TurnOnBehavior(BaseModel):
     #: Wanted behavior
     mode: BehaviorMode = BehaviorMode.Last
 
-    @root_validator(allow_reuse=True)
-    def _mode_based_on_preset(cls, values):
-        """Set the mode based on the index value."""
-        if values["index"] is not None:
-            values["mode"] = BehaviorMode.Preset
-        else:
-            values["mode"] = BehaviorMode.Last
-
-        return values
-
 
 class TurnOnBehaviors(BaseModel):
     """Model to contain turn on behaviors."""
