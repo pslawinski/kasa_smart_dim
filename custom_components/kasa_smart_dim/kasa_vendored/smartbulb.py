@@ -69,9 +69,9 @@ class TurnOnBehavior(BaseModel):
     """
 
     #: Index of preset to use, or ``None`` for the last known state.
-    index: Optional[int] = Field(default=None)
+    index: Optional[int] = None
     #: Wanted behavior
-    mode: BehaviorMode
+    mode: BehaviorMode = BehaviorMode.Last
 
     @root_validator(allow_reuse=True)
     def _mode_based_on_preset(cls, values):
@@ -82,11 +82,6 @@ class TurnOnBehavior(BaseModel):
             values["mode"] = BehaviorMode.Last
 
         return values
-
-    class Config:
-        """Configuration to make the validator run when changing the values."""
-
-        validate_assignment = True
 
 
 class TurnOnBehaviors(BaseModel):
