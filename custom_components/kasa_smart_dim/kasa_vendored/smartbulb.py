@@ -3,7 +3,7 @@
 import logging
 import re
 from enum import Enum
-from typing import Any, Dict, List, NamedTuple, Optional, Union, cast
+from typing import Any, Dict, List, NamedTuple, Optional, cast
 
 try:
     from pydantic.v1 import BaseModel, Field, root_validator
@@ -69,7 +69,7 @@ class TurnOnBehavior(BaseModel):
     """
 
     #: Index of preset to use, or ``None`` for the last known state.
-    index: Union[int, None] = Field(default=None)
+    index: int | None = None
     #: Wanted behavior
     mode: BehaviorMode = BehaviorMode.Last
 
