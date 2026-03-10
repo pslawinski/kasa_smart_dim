@@ -3,7 +3,7 @@
 import logging
 import re
 from enum import Enum
-from typing import Any, Dict, List, NamedTuple, Optional, Union, cast
+from typing import Any, Dict, List, NamedTuple, Optional, cast
 
 try:
     from pydantic.v1 import BaseModel, Field, root_validator
@@ -69,9 +69,24 @@ class TurnOnBehavior(BaseModel):
     """
 
     #: Index of preset to use, or ``None`` for the last known state.
-    index = Field(default=None) 
+    index: Optional[int] = Field(default=None)
     #: Wanted behavior
     mode: BehaviorMode = BehaviorMode.Last
+
+    @root_validator(allow_reuse=True)
+    def _mode_based_on_preset(cls, values):
+        """Set the mode based on the index value."""
+        if values["index"] is not None:
+            values["mode"] = BehaviorMode.Preset
+        else:
+            values["mode"] = BehaviorMode.Last
+
+        return values
+
+    class Config:
+        """Configuration to make the validator run when changing the values."""
+
+        validate_assignment = True
 
 
 class TurnOnBehaviors(BaseModel):

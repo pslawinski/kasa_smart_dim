@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "documentation": "https://www.home-assistant.io/integrations/tplink/",
   "dependencies": ["tplink"],
+  "requirements": ["pydantic>=2.0.0"],
   "codeowners": ["@pslawinski"],
   "iot_class": "local_push",
   "config_flow": true
