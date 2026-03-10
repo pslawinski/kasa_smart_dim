@@ -3,7 +3,7 @@
 import logging
 import re
 from enum import Enum
-from typing import Any, Dict, List, NamedTuple, Optional, cast
+from typing import Any, Dict, List, NamedTuple, Optional, Union, cast
 
 try:
     from pydantic.v1 import BaseModel, Field, root_validator
@@ -60,23 +60,23 @@ class BehaviorMode(str, Enum):
 class TurnOnBehavior(BaseModel):
     """Model to present a single turn on behavior.
 
-    :param int preset: the index number of wanted preset.
+    :param int index: the index number of wanted preset.
     :param BehaviorMode mode: last status or preset mode.
      If you are changing existing settings, you should not set this manually.
 
-    To change the behavior, it is only necessary to change the :attr:`preset` field
+    To change the behavior, it is only necessary to change the :attr:`index` field
     to contain either the preset index, or ``None`` for the last known state.
     """
 
     #: Index of preset to use, or ``None`` for the last known state.
-    preset: Optional[int] = Field(type_=Optional[int], alias="index", default=None)
+    index: Union[int, None] = Field(default=None)
     #: Wanted behavior
     mode: BehaviorMode = BehaviorMode.Last
 
     @root_validator(allow_reuse=True)
     def _mode_based_on_preset(cls, values):
-        """Set the mode based on the preset value."""
-        if values["preset"] is not None:
+        """Set the mode based on the index value."""
+        if values["index"] is not None:
             values["mode"] = BehaviorMode.Preset
         else:
             values["mode"] = BehaviorMode.Last
