@@ -69,7 +69,7 @@ class TurnOnBehavior(BaseModel):
     """
 
     #: Index of preset to use, or ``None`` for the last known state.
-    index: int = Field(default=None)
+    index: int | None = Field(default=None)
     #: Wanted behavior
     mode: BehaviorMode = BehaviorMode.Last
 
