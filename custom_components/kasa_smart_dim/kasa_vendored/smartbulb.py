@@ -68,25 +68,25 @@ class TurnOnBehavior(BaseModel):
     to contain either the preset index, or ``None`` for the last known state.
     """
 
-    #: Index of preset to use, or ``None`` for the last known state.
-    index: Optional[int] = Field(default=None)
-    #: Wanted behavior
-    mode: BehaviorMode = BehaviorMode.Last
+    # Using Any bypasses the broken Python 3.14 type inference
+    index: Any = Field(default=None)
+    mode: Any = BehaviorMode.Last
 
-    @root_validator(allow_reuse=True)
+    @root_validator(pre=True, allow_reuse=True)
     def _mode_based_on_preset(cls, values):
-        """Set the mode based on the index value."""
-        if values["index"] is not None:
+        # Manually ensure index is an int if it's not None
+        idx = values.get("index")
+        if idx is not None:
+            values["index"] = int(idx)
             values["mode"] = BehaviorMode.Preset
         else:
             values["mode"] = BehaviorMode.Last
-
         return values
 
     class Config:
-        """Configuration to make the validator run when changing the values."""
-
         validate_assignment = True
+        # This helper allows the model to accept the Any type without crashing
+        arbitrary_types_allowed = True
 
 
 class TurnOnBehaviors(BaseModel):
