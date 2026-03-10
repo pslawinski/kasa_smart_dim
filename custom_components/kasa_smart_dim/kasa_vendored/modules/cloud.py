@@ -1,14 +1,12 @@
 """Cloud module implementation."""
 
-try:
-    from pydantic.v1 import BaseModel
-except ImportError:
-    from pydantic import BaseModel
+from dataclasses import dataclass, asdict
 
 from .module import Module
 
 
-class CloudInfo(BaseModel):
+@dataclass
+class CloudInfo:
     """Container for cloud settings."""
 
     binded: bool
@@ -21,6 +19,13 @@ class CloudInfo(BaseModel):
     tcspInfo: str
     tcspStatus: int
     username: str
+
+    @classmethod
+    def parse_obj(cls, obj):
+        return cls(**obj)
+
+    def dict(self):
+        return asdict(self)
 
 
 class Cloud(Module):

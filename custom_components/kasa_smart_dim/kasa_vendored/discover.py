@@ -5,16 +5,12 @@ import binascii
 import ipaddress
 import logging
 import socket
+from dataclasses import dataclass, asdict
 from typing import Awaitable, Callable, Dict, Optional, Set, Type, cast
 
 # When support for cpython older than 3.11 is dropped
 # async_timeout can be replaced with asyncio.timeout
 from async_timeout import timeout as asyncio_timeout
-
-try:
-    from pydantic.v1 import BaseModel, ValidationError  # pragma: no cover
-except ImportError:
-    from pydantic import BaseModel, ValidationError  # pragma: no cover
 
 from .credentials import Credentials
 from .device_factory import (
@@ -435,7 +431,7 @@ class Discover:
             ) from ex
         try:
             discovery_result = DiscoveryResult(**info["result"])
-        except ValidationError as ex:
+        except Exception as ex:
             _LOGGER.debug(
                 "Unable to parse discovery from device %s: %s", config.host, info
             )
@@ -482,16 +478,21 @@ class Discover:
         return device
 
 
-class DiscoveryResult(BaseModel):
+@dataclass
+class DiscoveryResult:
     """Base model for discovery result."""
 
-    class EncryptionScheme(BaseModel):
+    @dataclass
+    class EncryptionScheme:
         """Base model for encryption scheme of discovery result."""
 
         is_support_https: bool
         encrypt_type: str
         http_port: int
         lv: Optional[int] = None
+
+        def dict(self):
+            return asdict(self)
 
     device_type: str
     device_model: str
@@ -511,6 +512,9 @@ class DiscoveryResult(BaseModel):
 
         containing only the values actually set and with aliases as field names.
         """
-        return self.dict(
-            by_alias=False, exclude_unset=True, exclude_none=True, exclude_defaults=True
-        )
+        d = asdict(self)
+        # Simple implementation: exclude None
+        return {k: v for k, v in d.items() if v is not None}
+
+    def dict(self):
+        return asdict(self)

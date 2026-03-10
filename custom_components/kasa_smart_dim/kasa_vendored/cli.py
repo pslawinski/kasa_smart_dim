@@ -30,10 +30,7 @@ from kasa import (
 )
 from .discover import DiscoveryResult
 
-try:
-    from pydantic.v1 import ValidationError
-except ImportError:
-    from pydantic import ValidationError
+
 
 try:
     from rich import print as _do_echo
@@ -477,7 +474,7 @@ def _echo_discovery_info(discovery_info):
 
     try:
         dr = DiscoveryResult(**discovery_info)
-    except ValidationError:
+    except Exception:
         _echo_dictionary(discovery_info)
         return
 

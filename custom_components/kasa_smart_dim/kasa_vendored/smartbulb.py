@@ -5,10 +5,7 @@ import re
 from enum import Enum
 from typing import Any, Dict, List, NamedTuple, Optional, cast
 
-try:
-    from pydantic.v1 import BaseModel, Field, root_validator
-except ImportError:
-    from pydantic import BaseModel, Field, root_validator
+from dataclasses import dataclass, asdict, field
 
 from .deviceconfig import DeviceConfig
 from .modules import Antitheft, Cloud, Countdown, Emeter, Schedule, Time, Usage
@@ -31,21 +28,28 @@ class HSV(NamedTuple):
     value: int
 
 
-class SmartBulbPreset(BaseModel):
+@dataclass
+class SmartBulbPreset:
     """Bulb configuration preset."""
 
     index: int
     brightness: int
 
     # These are not available for effect mode presets on light strips
-    hue: Optional[int]
-    saturation: Optional[int]
-    color_temp: Optional[int]
+    hue: Optional[int] = None
+    saturation: Optional[int] = None
+    color_temp: Optional[int] = None
 
     # Variables for effect mode presets
-    custom: Optional[int]
-    id: Optional[str]
-    mode: Optional[int]
+    custom: Optional[int] = None
+    id: Optional[str] = None
+    mode: Optional[int] = None
+
+    def dict(self, exclude_none=False):
+        d = asdict(self)
+        if exclude_none:
+            d = {k: v for k, v in d.items() if v is not None}
+        return d
 
 
 class BehaviorMode(str, Enum):
@@ -57,7 +61,8 @@ class BehaviorMode(str, Enum):
     Preset = "customize_preset"
 
 
-class TurnOnBehavior(BaseModel):
+@dataclass
+class TurnOnBehavior:
     """Model to present a single turn on behavior.
 
     :param int index: the index number of wanted preset.
@@ -68,34 +73,40 @@ class TurnOnBehavior(BaseModel):
     to contain either the preset index, or ``None`` for the last known state.
     """
 
-    # Using Any bypasses the broken Python 3.14 type inference
-    index: Any = Field(default=None)
-    mode: Any = BehaviorMode.Last
+    index: Optional[int] = None
+    mode: BehaviorMode = BehaviorMode.Last
 
-    @root_validator(pre=True, allow_reuse=True)
-    def _mode_based_on_preset(cls, values):
-        # Manually ensure index is an int if it's not None
-        idx = values.get("index")
-        if idx is not None:
-            values["index"] = int(idx)
-            values["mode"] = BehaviorMode.Preset
+    def __post_init__(self):
+        if self.index is not None:
+            self.mode = BehaviorMode.Preset
         else:
-            values["mode"] = BehaviorMode.Last
-        return values
+            self.mode = BehaviorMode.Last
 
-    class Config:
-        validate_assignment = True
-        # This helper allows the model to accept the Any type without crashing
-        arbitrary_types_allowed = True
+    def dict(self):
+        return asdict(self)
 
 
-class TurnOnBehaviors(BaseModel):
+@dataclass
+class TurnOnBehaviors:
     """Model to contain turn on behaviors."""
 
     #: The behavior when the bulb is turned on programmatically.
-    soft: TurnOnBehavior = Field(alias="soft_on")
+    soft: TurnOnBehavior = field(default_factory=lambda: TurnOnBehavior())
     #: The behavior when the bulb has been off from mains power.
-    hard: TurnOnBehavior = Field(alias="hard_on")
+    hard: TurnOnBehavior = field(default_factory=lambda: TurnOnBehavior())
+
+    @classmethod
+    def parse_obj(cls, obj):
+        soft_data = obj.get("soft_on", {})
+        hard_data = obj.get("hard_on", {})
+        soft = TurnOnBehavior(**soft_data)
+        hard = TurnOnBehavior(**hard_data)
+        return cls(soft=soft, hard=hard)
+
+    def dict(self, by_alias=False):
+        if by_alias:
+            return {"soft_on": self.soft.dict(), "hard_on": self.hard.dict()}
+        return asdict(self)
 
 
 TPLINK_KELVIN = {

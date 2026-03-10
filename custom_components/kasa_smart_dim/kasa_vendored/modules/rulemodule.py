@@ -1,14 +1,9 @@
 """Base implementation for all rule-based modules."""
 
 import logging
+from dataclasses import dataclass, asdict
 from enum import Enum
 from typing import Dict, List, Optional
-
-try:
-    from pydantic.v1 import BaseModel
-except ImportError:
-    from pydantic import BaseModel
-
 
 from .module import Module, merge
 
@@ -31,7 +26,8 @@ class TimeOption(Enum):
     AtSunset = 2
 
 
-class Rule(BaseModel):
+@dataclass
+class Rule:
     """Representation of a rule."""
 
     id: str
@@ -41,16 +37,23 @@ class Rule(BaseModel):
     repeat: bool
 
     # start action
-    sact: Optional[Action]
-    stime_opt: TimeOption
-    smin: int
+    sact: Optional[Action] = None
+    stime_opt: TimeOption = TimeOption.Disabled
+    smin: int = 0
 
-    eact: Optional[Action]
-    etime_opt: TimeOption
-    emin: int
+    eact: Optional[Action] = None
+    etime_opt: TimeOption = TimeOption.Disabled
+    emin: int = 0
 
     # Only on bulbs
-    s_light: Optional[Dict]
+    s_light: Optional[Dict] = None
+
+    @classmethod
+    def parse_obj(cls, obj):
+        return cls(**obj)
+
+    def dict(self):
+        return asdict(self)
 
 
 _LOGGER = logging.getLogger(__name__)
